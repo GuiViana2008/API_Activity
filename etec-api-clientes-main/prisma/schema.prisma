@@ -1,0 +1,47 @@
+// Depois de configurar o .env, execute:
+// npx prisma generate
+// npx prisma migrate dev
+// npx prisma db seed
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DB_CONNECTION")
+}
+
+model Cliente {
+  id       Int     @id @default(autoincrement())
+  nome     String
+  telefone String?
+  endereco String?
+  ativo    Boolean @default(true)
+
+  @@map("clientes")
+}
+
+model Permissao {
+  id        Int       @id @default(autoincrement())
+  nome      String    @unique
+  descricao String?
+  usuarios  Usuario[]
+
+  @@map("permissoes")
+}
+
+model Usuario {
+  id          Int       @id @default(autoincrement())
+  nome        String
+  email       String    @unique
+  senha       String
+  ativo       Boolean   @default(true)
+  criadoEm    DateTime  @default(now()) @map("criado_em")
+  atualizadoEm DateTime @updatedAt @map("atualizado_em")
+
+  permissaoId Int       @map("permissao_id")
+  permissao   Permissao @relation(fields: [permissaoId], references: [id])
+
+  @@map("usuarios")
+}
